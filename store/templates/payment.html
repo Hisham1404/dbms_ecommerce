@@ -1,0 +1,65 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container " style="text-align:center">
+<h1>Shipping Details</h1>
+<br>
+<br>
+<ul style="list-style: none;">
+{% for detail in shipping_details %}
+
+<li><strong>Name:</strong> {{detail.first_name}} {{detail.last_name}}</li>
+
+<li><strong>Address:</strong> {{detail.address}}</li>
+<li><strong>City:</strong> {{detail.city}}</li>
+<li><strong>State:</strong> {{detail.state}}</li>
+<li><strong>Zipcode:</strong> {{detail.zipcode}}</li>
+
+{% comment %} <button class="payment-button" style="margin-top: 20px;"><a href="{% url 'payment' %}">Proceed to Payment</a></button> {% endcomment %}
+<div id="paypal-button-container"></div>
+    <p id="result-message"></p>
+    <!-- Replace the "test" client-id value with your client-id -->
+
+
+
+{%endfor %}
+</ul>
+</div>
+<br>
+<br><br>
+<br>
+<script src="https://www.paypal.com/sdk/js?client-id=AQpcW7xhoMF1awoy7OvuvLhgEDpiGU-qKIjflbAB2kh1XtBHgXPSTFbtaGqXQvwDSZ-Lt7R7dj4EqGZU&currency=USD"></script>
+
+<script>
+    var total = '{{order.get_cart_total}}'
+    // Render the PayPal button into #paypal-button-container
+    paypal.Buttons({
+
+        style: {
+            color:  'blue',
+            shape:  'rect',
+        },
+
+        // Set up the transaction
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value:parseFloat(total).toFixed(2)
+                    }
+                }]
+            });
+        },
+
+        // Finalize the transaction
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                // Show a success message to the buyer
+                submitFormData()
+            });
+        }
+
+    }).render('#paypal-button-container');
+</script>
+{% endblock %}
